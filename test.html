@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<ul class="first">
+  <li>
+    <ul>
+      <li>
+        <ul>
+          <li>
+            <ul>
+              <li>
+                <ul>
+                  <li>
+                    <ul>
+                      <li>
+                        <ul>
+                          <li>
+                            <ul>
+                              <li>
+                                <div>
+                                  <span>点击1</span>
+                                  <span>点击2</span>
+                                  <span>点击3</span>
+                                  <span>点击4</span>
+                                  <span>点击5</span>
+                                </div>
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<script>
+  const getParentsPath = (startTag, parentTagList = []) => {
+    let path = event.path || (event.composedPath && event.composedPath())
+    if (path) {
+      return path
+    }
+    if (startTag instanceof HTMLElement) {
+      const nodeName = startTag.nodeName.toLocaleLowerCase();
+      const classNameStr = startTag.className.trim();
+      let className = '';
+      if (classNameStr) {
+        className = classNameStr.split(' ').map(i => '.' + i).join('')
+      }
+      parentTagList.push(nodeName + className);
+      return getParentsPath(startTag.parentNode, parentTagList)
+    } else {
+      return parentTagList
+    }
+  };
+  const  splitJoint = (pathArray)=>{
+    pathArray = pathArray.reverse();
+    let pathStr = pathArray.reduce((prev,next)=>{
+      let prevStr = '';
+      let nextStr = '';
+      if(prev instanceof HTMLElement){
+        prevStr = prev.localName
+      }
+      if(next instanceof HTMLElement){
+        nextStr = next.localName
+      }
+      if(typeof prev ===  "string"){
+        prevStr = prev
+      }
+      if(prevStr&&nextStr){
+        return  prevStr+'>'+nextStr
+      }
+      return prevStr+nextStr
+    });
+    return pathStr
+  };
+let historyArray
+  try{
+    historyArray=JSON.parse(localStorage.getItem('historyArray'))
+  }catch (e) {
+    historyArray = []
+  }
+  document.body.addEventListener('click', e => {
+    const target = e.target;
+    const currentParent = Array.prototype.slice.call(target.parentNode.children);
+    const currentEqIndex = currentParent.indexOf(target);
+    const parentList = getParentsPath(target);
+    const pathString = splitJoint(parentList);
+    console.log(target);
+    console.log(currentEqIndex)
+    console.log(parentList);
+    console.log(pathString)
+    historyArray.push({
+      nodePath:pathString,
+      eq:currentEqIndex
+    });
+    localStorage.setItem('historyArray',JSON.stringify(historyArray))
+  });
+
+</script>
+</body>
+</html>
